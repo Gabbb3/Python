@@ -9,7 +9,8 @@ df = pd.read_excel(xls, 'Sheet1')
 df = pd.read_csv("nba.csv", keep_default_na=False, na_values=[""])) 
 df = pd.read_excel (r'C:\Users\Ron\Desktop\Product List.xlsx')
 df = pd.read_clipboard()
-## Only some columns ##
+
+## Only some columns
 data = pd.read_excel (r'C:\Users\Ron\Desktop\Product List.xlsx') 
 df = pd.DataFrame(data, columns= ['Product','Price'])
 
@@ -20,56 +21,29 @@ df.info
 df.nunique() # Shows number of unique values
 df.head(5)
 df.isnull().any() # Does not have any missing values
-df["EDUCATION"].unique() # Shows unique values for column ["Education"]
-df["Weight"].describe() # Shows min max etc.
-df.shape #Returns rows, columns
-df["y"].value_counts() # Count number of unique values
-df.reset_index(inplace=True) #Resetting index
-
-# Return no. of missing values for all columns
+df.shape #  Returns dimensions of df
+                 
+df[columm].describe() # Shows min max etc. 
+df[column].unique() # Returns array of unique values
+df[column].value_counts() # Count number of unique values
+                
+# Function: Return no. of missing values for all columns
 def num_missing(x):
   return sum(x.isnull())
 print ("Missing values per column:")
-print (df.apply(num_missing, axis=0)) #axis=0 defines that function is to be applied on each column
+print (df.apply(num_missing, axis=0)) 
 
-# Print value_counts for all
-CatVar = ["Position", "College"]
-for i in df[CatVar].columns:
+# Function: Print value_counts for all or specific columns
+def countUV(x, df):
+  for i in df[x].columns:
     print(i)
     print(df[i].value_counts())
-    print("\n")
+    print("\n")  
+countUV(df.columns.values, df)
                  
-Columns = ["Position", "College"]
-def countUniqueVal(dataframe, column):
-    for count, name in enumerate(column):
-        print("#{} - {}".format(count, name))
-        print(dataframe[name].value_counts())
-        print("\n")
-    return
-countUniqueVal(df, Columns)
-
-# Plotting pre-proc dataset
-def plotUniqueVal(dataframe, column):
-    sns.set(style="darkgrid")
-    ax = sns.catplot(x=column, data=dataframe, kind='count', aspect=0.6)
-    ax.set_xticklabels(rotation=90)
-    ax.fig.suptitle("Groups and frequency in attribute: {}".format(column))
-#         ax.savefig("{}Freq.png".format(name))
-    return
-plotUniqueVal(df, "y") # Plot shows unbalanced dataset
-                 
-# Plotting continuous variable, notnull()
-ax = sns.distplot(df[df["Salary"].notnull()]["Salary"], norm_hist=True)
-                 
-# Sorting
-df.sort_values(
-  by=['Country name','Year'], 
-  ascending=[False,True]
-data.sort_index() # Sort by index
-
 ######################### Manipulation #########################
 
-## Datetime values
+## Datetime values ##
 df["Datetime"] = pd.to_datetime(df["Datetime"])
 df["day"] = df["Datetime"].dt.day
 df['month'] = df["Datetime"].dt.month
@@ -81,80 +55,100 @@ df["Datetime"].dt.month_name() # Returns month name, can use days_in_month(), is
 df[df["Datetime"].dt.is_month_end] # Returns month end results
 
 ## Changing type to numeric/int/category
-df["LIMIT_BAL"] = pd.to_numeric(df["LIMIT_BAL"], errors="coerce") # Change those errors into NaNs
-df["y"]=df["y"].astype('int')
-df["body_style"] = df["body_style"].astype('category')
+df[col] = pd.to_numeric(df[col], errors="coerce") # Change those errors into NaNs
 df = df.astype(int)
+df[col]=df[col].astype('int')
+df[col] = df[col].astype('category')
 
-# Using dictionary ##
-cleanup_nums = {"num_doors":     {"four": 4, "two": 2},
-                "num_cylinders": {"four": 4, "six": 6, "five": 5, "eight": 8,
-                                  "two": 2, "twelve": 12, "three":3 }}
-obj_df.replace(cleanup_nums, inplace=True)
-
-## Duplicating/Splitting dataframes ##
-categorical_columns = []
-numeric_columns = []
-for c in data.columns:
-    if data[c].map(type).eq(str).any(): #check if there are any strings in column
-        categorical_columns.append(c)
-    else:
+## Function: Splitting dataframe into categorical and continuous
+def cat(df):
+  categorical_columns = []
+  for c in df.columns:
+      if df[c].map(type).eq(str).any(): #check if there are any strings in column
+          categorical_columns.append(c)
+      else:
+        next
+  df_cat = df.select_dtypes(include=['object']).copy() # Only select data type = object
+  return df_cat
+df_cat = cat(df)
+  
+def cont(df):
+  numeric_columns = []
+  for c in df.columns:
+      if df[c].map(type).eq(str).any(): #check if there are any strings in column
+        next
+      else:
         numeric_columns.append(c)
-
-obj_df = df.select_dtypes(include=['object']).copy() # Only select data type = object
-numfloat_df = df.select_dtypes(include=['float','int64']).copy() # Only select data type = object
+  df_cont = df.select_dtypes(include=['float','int64']).copy() # Only select data type = float/int64
+  return df_cont
+df_cont = cont(df)
+ 
+# Concatenate Dataframes back
+df_combined = pd.concat([df_cat, df_cont], axis = 1)
+                 
+## Sorting
+df.sort_values(
+  by=['Country name','Year'], 
+  ascending=[False,True]
+data.sort_index() # Sort by index
 
 ## Renaming variables
 df.rename(columns={'default payment next month':'y'}, inplace=True)
 # Renaming many variables
 new_names =  {'Unnamed: 0': 'Country',
-                '? Summer': 'Summer Olympics',
-                '01 !': 'Gold',
-                '02 !': 'Silver'}
+              '? Summer': 'Summer Olympics',
+              '01 !': 'Gold',
+              '02 !': 'Silver'}
 df.rename(columns=new_names, inplace = True)
 
-## Reordering labels for plotting ##
+## Reordering labels for plotting
 df["month"] = pd.Categorical(df["month"],["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], ordered=True) # Ordering categorical values
 
-## Mapping labels to Numeric ##
+## Remapping cell values
 df["y"] = df["y"].map({'no': 0, 'yes': 100}) ### Mapping no to 0 and yes to 100, so that average produces y percent
 df["BinnedAge"] = df["BinnedAge"].map({ 29 : "Younger Than 30", 31 : "30+"})
+# Remapping cell values - Using dictionary
+cleanup_nums = {"num_doors":     {"four": 4, "two": 2},
+                "num_cylinders": {"four": 4, "six": 6, "five": 5, "eight": 8,
+                                  "two": 2, "twelve": 12, "three":3 }}
+df.replace(cleanup_nums, inplace=True)
+  
+# Remapping respective cell in c2 to 10, based on condition c1 == Value
+df.loc[df['c1'] == 'Value', 'c2'] = 10
 
-## Discretizing ##
-def CleanPay(column):
+## Function - Discretizing
+def cleancols(column):
     for i in column:
        for index, row in df.iterrows():
           if df.at[index, i] > 3:
                df.at[index, i] = 4
           elif df.at[index, i] == 0:
               df.at[index, i] = 4            
-PayColumns = ["PAY_0", "PAY_2", "PAY_3", "PAY_4", "PAY_5", "PAY_6"]
-CleanPay(PayColumns)
 
-# Using a function to discretize/categorizing/change numeric variables *************************************
-def fun(num):
+# Function - Discretizing v2
+def disc(num):
     if num <5000000:
         return "Low"
-    elif num >5000000:
+    elif num >= 5000000:
         return "High"
-df["SalaryCat"] = df["Salary"].apply(fun)
+df["SalaryCat"] = df["Salary"].apply(disc)
   
-## Using iloc to select rows ##
+## Using iloc to select rows
 df.iloc[0:3] # Returns rows with index values 0, 1, 2
-df = df.iloc[1:] # Remove repeated header
+df = df.iloc[1:] # Select row 2 onwards
 df.iloc[2:, -3:] # Returns from row 3 onwards, columns 3rd last to last
 df.iloc[(df['Age'] < 30).values, [1, 3]] # Can only use integers for column reference
 
-## Using loc ##
+## Using loc to select specific rows based on condition(s)
 # https://www.shanelynn.ie/select-pandas-dataframe-rows-and-columns-using-iloc-loc-and-ix/
 df.set_index("last_name", inplace=True) # Setting column ["last_name"] as index
 name = ["Andreas", "Veness"]
 df.loc[name] # Returns df with index values "Andreas" and "Veness"
   
 df.loc[df["City"] == "Singapore", ["email", "number"]] # Returns dataframe with columns email and number, which was indexed by last name, with City column = Singapore
-df.loc[(df["Age"] < 20) & (df["Number"] == 1.0)] # Multiple Conditions (Add ,"Name"] to return name)
+df.loc[(df["Age"] < 20) & (df["Number"] == 1.0)] # Multiple Conditions
 
-## Using at ##
+## Using at - Used to access cells of a specific column
 df.at[2, "Name"] # Returns row 2 of column "Name"
 # If both yes, return yes
 has_loan_list = []
@@ -165,35 +159,55 @@ for index, row in df.iterrows():
         has_loan_list.append("no")
 df["has_loan"] = has_loan_list
 
-## Dropping rows (axis=0) /columns (axis=1)
-df = df.drop(["ID"], axis=1)
-del df["Employees"]
-df.drop("reports", axis=1)
+## Dropping rows (axis=0) / columns (axis=1)
+df = df.drop([col], axis=1)
 df = df[df["Name"] != 'Tina'] # Delete rows where Name = Tina
 df = df.drop(0) # Drop index row = 0
-
+df.dropna() # Drops rows
+df.dropna(axis='columns') # Drops columns
+df.dropna(how='all') # Drops rows where ALL row cells are na
+df.dropna(thresh=2) # Drops rows based on threshold
+  
 to_drop = ['Edition Statement','Corporate Author']
 df.drop(to_drop, inplace=True, axis=1)
+
+## Dropping rows based on one column NaN
+df = df[pd.notnull(df[col])]
+df[df[col].notnull()]
+
+# Delete the rows with label "Ireland"
+# For label-based deletion, set the index first on the dataframe:
+data = data.set_index("Area")
+data = data.drop("Ireland", axis=0). # Delete all rows with label "Ireland"
   
-# Adding/Append row using dict
+## Adding/Append row using dict
 df.append({"index":"Test", "Expenses":99999, "Revenue":99999, "SubDept":"C", "Cost Margin":9}, ignore_index=True)
   
 # Adding/Append rows using pd.Series
 listOfSeries = [pd.Series(['Raju', 21, 'Bangalore', 'India'], index=df.columns ) ,
                 pd.Series(['Sam', 22, 'Tokyo', 'Japan'], index=df.columns ) ,
                 pd.Series(['Rocky', 23, 'Las Vegas', 'US'], index=df.columns ) ]
-modDfObj = df.append(listOfSeries , ignore_index=True)
+upd_df = df.append(listOfSeries , ignore_index=True)
   
 # Adding/Append from another df
 result = df1.append(df4, sort=False) #Default = axis=0, which means df4 below df1, appended by similar column labels
+
+## Concatenate Dataframes, Merging Dataframes
+data_joined = pd.concat([obj_df, float_df], axis = 1)
+
+## Merge / Concatenate
+#https://pandas.pydata.org/pandas-docs/stable/user_guide/merging.html
+df_merged = pd.merge(df1, df2, how='left', on="Order ID") # Similar to left join in SQL, default = innerjoin. Merge based on similar columns "Order ID"
+df_inner = pd.merge(df1, df2, left_on="Order ID", right_on="New ID") # Inner join based on Order ID = New ID
+df_concat = pd.concat([df_grouped, df2_grouped], axis=1, sort=False)
   
 # Adding columns as a function of another column
 df.assign(Revised_Salary = lambda x: df['Salary'] 
                                + df['Salary']/10) 
-df["TestAge"] = df["Age"].apply(lambda x: x+3)
+df["Age+3"] = df["Age"].apply(lambda x: x+3)
  
 # Adding columns based on condition of multiple columns
-def f(row):
+def fun_eq(row):
     if row["A"] == row["B"]:
         val = 0
     elif row["A"] != row["B"]:
@@ -201,42 +215,26 @@ def f(row):
     else:
         val = -1
     return val
-df["AB"] = df.apply(f, axis=1)
-
-## Dropping rows based on one column NaN
-df = df[pd.notnull(df["Age"])]
-df[df["Salary"].notnull()]
-
-# Delete the rows with label "Ireland"
-# For label-based deletion, set the index first on the dataframe:
-data = data.set_index("Area")
-data = data.drop("Ireland", axis=0). # Delete all rows with label "Ireland"
-
-# Re-valuing respective cell in c2 to 10, based on condition c1 == Value
-df.loc[df['c1'] == 'Value', 'c2'] = 10
-  
-## Logging columns ##
-df["balance_log"] = np.log(df.balance) # Use log
+df["AB"] = df.apply(fun_eq, axis=1)
 
 ## Imputing missing value numeric data
+## Filling based on specific conditions https://stackoverflow.com/questions/49088259/how-to-impute-values-in-a-column-when-certain-conditions-are-fulfilled-in-other
 ValIndex = ["Age"]
 for col in ValIndex: #ValIndex has the columns name
     df[col] = df[col].fillna(df[col].mean())
+
 # Fill NA with mean of group
 df['Salary'] = df['Salary'].fillna(df.groupby('Team')['Salary'].transform('mean'))
 
-## Imputing missing categorical data ##
+# Fill NA with most frequent value
+df = df.apply(lambda x:x.fillna(x.value_counts().index[0]))
+
+## Imputing missing categorical data
 obj_df[obj_df.isnull().any(axis=1)] # Returning rows with nulls in any column
 obj_df["num_doors"].value_counts()
 obj_df = obj_df.fillna({"num_doors": "four"}) # Fill NaNs with "four"
 
-from scipy.stats import mode
-df['Age'].fillna(mode(df['Age']).mode[0], inplace=True)
-## Filling based on specific conditions https://stackoverflow.com/questions/49088259/how-to-impute-values-in-a-column-when-certain-conditions-are-fulfilled-in-other
-
-df = df.apply(lambda x:x.fillna(x.value_counts().index[0])) # Filling NaNs with most frequent value
-
-## Imputing missing values for train/test ##
+## Imputing missing values for train/test
 import numpy as np
 from sklearn.preprocessing import Imputer
 imp = Imputer(missing_values='NaN', strategy='mean', axis=0)
@@ -261,23 +259,18 @@ df['month']       = le.fit_transform(df['month'])
 ## One Hot Encoding ##
 pd.get_dummies(df, columns=["body_style", "drive_wheels"], prefix=["body", "drive"]).head()
 
-## Concatenate Dataframes, Merging Dataframes
-data_joined = pd.concat([obj_df, float_df], axis = 1)
-
-## Joining
-https://pandas.pydata.org/pandas-docs/stable/user_guide/merging.html
-test2 = pd.merge(df_grouped, df2_grouped, how="left", left_index=True, right_index=True)
-test = pd.concat([df_grouped, df2_grouped], axis=1, sort=False)
-    
-## Appending
-df1.append(df2, ignore_index=True) # Append df2 below df1
-
 ######################### PLOTTING #########################
-
-continuousRaw = ["balance", "age"]
-categoricalRaw = ["job", "marital", "education", "default", "housing", "loan", "contact", "month", "poutcome", "y"]
-
-## Plotting Categorical Variables
+# Function: Plotting Categorical Variables
+def plotUniqueVal(dataframe, column):
+    sns.set(style="darkgrid")
+    ax = sns.catplot(x=column, data=dataframe, kind='count', aspect=0.6)
+    ax.set_xticklabels(rotation=90)
+    ax.fig.suptitle("Groups and frequency in attribute: {}".format(column))
+#         ax.savefig("{}Freq.png".format(name))
+    return
+plotUniqueVal(df, "y")
+  
+## Plotting Categorical Variables - with exceptions for some columns
 def plotUniqueVal(dataframe, column):
     sns.set(style="darkgrid")
     monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -293,20 +286,13 @@ def plotUniqueVal(dataframe, column):
         ax.fig.suptitle("Groups and frequency in attribute: {}".format(name))
 #         ax.savefig("{}Freq.png".format(name))
     return
-plotUniqueVal(df, categoricalRaw)
+plotUniqueVal(df, "y")
 
-def plotUniqueVal(dataframe, column):
+# Function: Plotting continuous variable, notnull()
+def plotDist(dataframe, column):
     sns.set(style="darkgrid")
-    ax = sns.catplot(x=column, data=dataframe, kind='count', aspect=0.6)
-    ax.set_xticklabels(rotation=90)
-    ax.fig.suptitle("Groups and frequency in attribute: {}".format(column))
-#         ax.savefig("{}Freq.png".format(name))
-    return
-plotUniqueVal(df, "y") # Plot shows unbalanced dataset
-
-## Plotting Numeric Variables
-# Histogram
-df["Age"].hist()
+    ax = sns.distplot(dataframe[dataframe[column].notnull()][column], norm_hist=True)
+plotDist(df, "y")
 
 # Binned - Age vs. Average Salary
 Binned_df = df.copy()
@@ -386,7 +372,8 @@ for item in ax.get_xticklabels():
     item.set_rotation(45)
 
 
-######################### Splitting dataframe for modelling #########################
+######################### Train-test Split #########################
+from sklearn.model_selection import train_test_split
 Y = df["y"]
 X = df.drop(["y"], axis=1)
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, shuffle=True, test_size=0.2)
@@ -421,7 +408,6 @@ X_train = s_scaler.inverse_transform(X_train)
 
 # Scaling Test Data using Train Data Attributes
 X_test_scaled = s_scaler.transform(X_test)
-X_test_scaled
                  
 # Min Max Scaling
 numcol = ["X1", "X2"]
@@ -429,20 +415,16 @@ for col in numcol:
     df[col] = df[[col]].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
 
 ######################### Saving #########################
-
 df.to_csv("output_filename.csv", index=False)
 df.to_excel("outputv2.xlsx", index=False)
 
 ######################### Other Stuff #########################
-# Determine pivot table
+# Pivot Table
 impute_grps = data.pivot_table(values=["LoanAmount"], index=["Gender","Married","Self_Employed"], aggfunc=np.mean)
-print impute_grps
+print (impute_grps)
 
 # Crosstabs
 pd.crosstab(df["Team"],df["Age"],margins=True)
-
-# Sort values
-df_sorted = df.sort_values(['ApplicantIncome','CoapplicantIncome'], ascending=False)
 
 ## Binning numeric variables into categorical
 bin_labels_5 = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond']
@@ -465,16 +447,12 @@ stock_files
 pd.concat((pd.read_csv(file).assign(filename=file) for file in stock_files), ignore_index=True)
                           
 ## Checking for string values starting with
-https://towardsdatascience.com/learn-advanced-features-for-pythons-main-data-analysis-library-in-20-minutes-d0eedd90d086
-df['Type of Meal'].str.endswith('ast')
-df[df["Name"].str.contains("Bruce")]
+#https://towardsdatascience.com/learn-advanced-features-for-pythons-main-data-analysis-library-in-20-minutes-d0eedd90d086
+df[col].str.endswith('ast')
+df[df[col].str.contains("Bruce")]
 
-## Merging
-pd.merge(df1, df2, how='left', on="Order ID") # Similar to left join in SQL, default = innerjoin. Merge based on similar columns "Order ID"
-pd.merge(df1, df2, left_on="Order ID", right_on="New ID") # Inner join based on Order ID = New ID
-
-## Melting - Similar to OHE, but using another column's value as that encoded value
-https://towardsdatascience.com/learn-advanced-features-for-pythons-main-data-analysis-library-in-20-minutes-d0eedd90d086
+## Mean Encoding - Melting - Similar to OHE, but using another column's value as that encoded value (Instead of 0 | 0 | 1, you get 0 | 0 | 394, in the new encoded columns)
+#https://towardsdatascience.com/learn-advanced-features-for-pythons-main-data-analysis-library-in-20-minutes-d0eedd90d086
 melt_experiment = pd.merge(
     invoices,
     pd.get_dummies(invoices['Type of Meal']).mul(invoices['Meal Price'].values,axis=0),
@@ -484,11 +462,6 @@ melt_experiment = pd.merge(
 del melt_experiment['Type of Meal']
 del melt_experiment['Meal Price']
 melt_experiment
-                          
-## If cell contains text values of target, return True
-targets = ["leave", "leaves"]
-pattern = '|'.join(targets)
-data["Leaves"] = data["Comments"].str.contains(pattern, case=False)
 
 ## Numpy operators/ If
 np.logical_or(1 ==1, 2 ==1) # and or not xor
