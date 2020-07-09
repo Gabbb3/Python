@@ -1,4 +1,5 @@
 # TO DO: ADD XGBOOST, LSTM, SVM, Logistic Regression
+# k-means to do discretization
 ######################### Splitting dataframe for modelling #########################
 Y = df["y"]
 X = df.drop(["y"], axis=1)
@@ -31,6 +32,11 @@ pred_RF = RF_cv.predict(X_test)
 feat_labels = X.columns.values
 importances = RF_cv.best_estimator_.feature_importances_
 indices = np.argsort(importances)
+
+rf_importance = pd.DataFrame()
+rf_importance["features"] = feat_labels
+rf_importance["importances"] = importances
+rf_importance = rf_importance.sort_values(["importances"], ascending=0)
 
 plt.title('RF Feature Importance')
 plt.barh(range(len(indices)), importances[indices], color='b', align='center')
@@ -158,9 +164,6 @@ print("Accuracy for Random Forest on CV data: ", accuracy_score(Y_test,pred_RF))
 F1 = f1_score(Y_test, pred_DT, average=None)
 print("The F1-measure for class Y=1 is {}".format(F1[1]))
 
-
-
-
 ################################################## Random Forest Regressor #####################################################
 
 from sklearn.model_selection import GridSearchCV
@@ -175,15 +178,20 @@ param_grid = {
 #             "bootstrap": [True, False], #default=True
             }
 
-
 RFR = RandomForestRegressor()
-RFR_cv = GridSearchCV(RFR, param_grid, cv=5, scoring="r2")
+RFR_cv = GridSearchCV(RFR, param_grid, cv=5, scoring="neg_mean_squared_error")
 RFR_cv.fit(X_train, Y_train)
+print(RFR_cv.best_score_ , RFR_cv.best_params_)
     
 # Feature Importance
 feat_labels = X.columns.values
 importances = RFR_cv.best_estimator_.feature_importances_
 indices = np.argsort(importances)
+
+rf_importance = pd.DataFrame()
+rf_importance["features"] = feat_labels
+rf_importance["importances"] = importances
+rf_importance = rf_importance.sort_values(["importances"], ascending=0)
 
 plt.title('RF Feature Importance')
 plt.barh(range(len(indices)), importances[indices], color='b', align='center')
@@ -191,11 +199,32 @@ plt.yticks(range(len(indices)), [feat_labels[i] for i in indices])
 plt.xlabel('Relative Importance')
 # plt.savefig("RFFeatureImportance", bbox_inches="tight")
 
-print(RFR_cv.best_score_ , RFR_cv.best_params_)
-
 pred_RFR = RFR_cv.predict(X_test)
 r2_score(pred_RFR, Y_test)
 print("The r2 on test data set is {}.".format(r2_score(pred_RFR,Y_test)))
+
+
+################################################## Lasso Regression (L1)  #####################################################
+from sklearn.linear_model import Lasso
+
+param_grid = {"alpha": [1e-15, 1e-10, 1e-8, 1e-4, 1e-3, 1e-2, 1, 5, 10, 20], "max_iter": [1000, 2000, 3000]}
+
+LS = GridSearchCV(Lasso(), param_grid, scoring="neg_mean_squared_error", cv=5)
+LS_cv = LS.fit(X_train, Y_train)
+print(LS_cv.best_score_ , LS_cv.best_params_)
+
+# Using lasso coef as importance
+best_LS = LS_cv.best_estimator_
+best_LS = best_LS.fit(X_train, Y_train)
+pred_LS = best_LS.predict(X_test)
+for i in range(len(best_LS.coef_)):
+    if best_LS.coef_[i] < 0:
+        best_LS.coef_[i] = -best_LS.coef_[i] # Changing values of lasso coeff to absolute values
+LS_importance = pd.DataFrame()
+LS_importance["features"] = X_train.columns
+LS_importance["importances"] = best_LS.coef_
+LS_importance = LS_importance.sort_values(["importances"], ascending=0)
+LS_importance
 
 ##################################### Neural Network - Regression ########################################
 # https://www.tensorflow.org/tutorials/keras/regression
@@ -213,3 +242,9 @@ model.compile(loss='mse', optimizer='adam')
 # fit the keras model on the dataset
 model.fit(X, y, epochs=10, batch_size=10)
 pred_NNR = model.predict(X_test)
+
+################################################# Regression Evaluations ####################################################
+
+# Mean squared error
+LS_mse = metrics.mean_squared_error(Y_test, pred_LS)
+LS_mse
