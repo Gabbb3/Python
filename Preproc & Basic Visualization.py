@@ -118,7 +118,7 @@ df.replace(cleanup_nums, inplace=True)
 # Remapping respective cell in c2 to 10, based on condition c1 == Value
 df.loc[df['c1'] == 'Value', 'c2'] = 10
 
-## Function - Discretizing
+## Function - Discretizing (Or use k-means clustering)
 def cleancols(column):
     for i in column:
        for index, row in df.iterrows():
@@ -127,7 +127,7 @@ def cleancols(column):
           elif df.at[index, i] == 0:
               df.at[index, i] = 4            
 
-# Function - Discretizing v2
+# Function - Discretizing v2 (Or use k-means clustering)
 def disc(num):
     if num <5000000:
         return "Low"
@@ -244,6 +244,8 @@ imp.fit(X_train)
 print(imp.transform(X_train))   # Using properties of train data to use on train data   
 print(imp.transform(X_test))   # Using properties of train data to use on test data   
 
+#### Encoding ####
+
 ## Label Encoding ##
 from sklearn import preprocessing
 le = preprocessing.LabelEncoder()
@@ -259,7 +261,10 @@ df['contact']     = le.fit_transform(df['contact'])
 df['month']       = le.fit_transform(df['month']) 
 
 ## One Hot Encoding ##
-pd.get_dummies(df, columns=["body_style", "drive_wheels"], prefix=["body", "drive"]).head()
+category_col = ["A", "B", "C"]
+for i in category_col:
+    df = df.join(pd.get_dummies(raw[i], prefix=i))
+    df = df.drop([i], axis=1)
 
 ######################### PLOTTING #########################
 # Function: Plotting Categorical Variables
@@ -415,6 +420,12 @@ X_test_scaled = s_scaler.transform(X_test)
 numcol = ["X1", "X2"]
 for col in numcol:
     df[col] = df[[col]].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
+  
+# MinMaxScaler - Using sklearn
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler(feature_range=(0, 1))
+df_scaled = scaler.fit_transform(df)
+df_scaled = pd.DataFrame(df_scaled, columns = df.columns)
 
 ######################### Saving #########################
 df.to_csv("output_filename.csv", index=False)
