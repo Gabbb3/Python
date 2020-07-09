@@ -1,3 +1,5 @@
+### TO ADD: Mean encoding, value encoding methods
+
 ######################### Working directory #########################
 import os
 os.getcwd()
