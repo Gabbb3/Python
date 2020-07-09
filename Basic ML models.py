@@ -9,37 +9,37 @@ https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter
 ##################################### Random Forest Classifier ########################################
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
 import numpy as np
 from math import *
 
 param_grid = { 
-            "n_estimators"      : [10,20,30],
-#             "max_features"      : ["auto", "sqrt", "log2"],
-#             "min_samples_split" : [2,4,8],
-#             "bootstrap": [True, False],
+            "n_estimators"      : [100, 200, 300], # default=100
+#             "max_features"      : ["auto", "sqrt", "log2"], #default=auto
+#             "min_samples_split" : [2,4,8], #default=2
+#             "bootstrap": [True, False], #default=True
             }
 
-# clfRF = RandomForestClassifier(n_estimators=10, max_features = int(sqrt(X_train.shape[1])))
-clfRF = RandomForestClassifier()
-clfRFCV = GridSearchCV(clfRF, param_grid=param_grid, cv=5, scoring = "accuracy")
-clfRFCV = clfRFCV.fit(X_train, Y_train)
+RF = RandomForestClassifier()
+RF_cv = GridSearchCV(RF, param_grid=param_grid, cv=5, scoring = "accuracy")
+RF_cv = RF_cv.fit(X_train, Y_train)
 
-predRF = clfRFCV.predict(X_test)
+pred_RF = RF_cv.predict(X_test)
 print("Number of mislabeled points out of a total %d points : %d" % 
-      (X_test.shape[0],(Y_test!= predRF).sum()))             
-score = 1 - (Y_test!=predRF).sum() / X_test.shape[0]
-print(score) ## 0.8155
+      (X_test.shape[0],(Y_test!= pred_RF).sum()))             
+score = 1 - (Y_test!=pred_RF).sum() / X_test.shape[0]
+print(score)
 
 # Feature Importance
 feat_labels = X.columns.values
-importances = clfRFCV.best_estimator_.feature_importances_
+importances = RF_cv.best_estimator_.feature_importances_
 indices = np.argsort(importances)
 
 plt.title('RF Feature Importance')
 plt.barh(range(len(indices)), importances[indices], color='b', align='center')
 plt.yticks(range(len(indices)), [feat_labels[i] for i in indices])
 plt.xlabel('Relative Importance')
-plt.savefig("RFFeatureImportance", bbox_inches="tight")
+# plt.savefig("RFFeatureImportance", bbox_inches="tight")
 
 ##################################### Decision Tree Classifier ########################################
 
@@ -51,31 +51,27 @@ from sklearn.model_selection import cross_val_score
 
 param_grid = {'max_depth': np.arange(3, 10)}
 
-clfDT = tree.DecisionTreeClassifier()
-clfDTCV = GridSearchCV(clfDT, param_grid=param_grid, cv=5, scoring = "accuracy")
-clfDTCV = clfDTCV.fit(X_train, Y_train)
-print(clfDTCV.best_score_, clfDTCV.best_params_)
+DT = tree.DecisionTreeClassifier()
+DT_cv = GridSearchCV(DT, param_grid=param_grid, cv=5, scoring = "accuracy")
+DT_cv = DT_cv.fit(X_train, Y_train)
+print(DT_cv.best_score_, DT_cv.best_params_)
 
-all_accuracies = cross_val_score(estimator=clfDTCV, X=X_train, y=Y_train, cv=5)
+all_accuracies = cross_val_score(estimator=DT_cv, X=X_train, y=Y_train, cv=5)
 print(all_accuracies)
-print("The average accuracy is {}".format(all_accuracies.mean())) ## 0.8178
+print("The average accuracy is {}".format(all_accuracies.mean()))
 
-predDT = clfDTCV.predict(X_test)
-# print("Number of mislabeled points out of a total %d points : %d" % 
-#       (X_test.shape[0],(Y_test!= predDT).sum()))
-# score = 1 - (Y_test!=predDT).sum() / X_test.shape[0]
-# print(score)
+pred_DT = DT_cv.predict(X_test)
 
-report = classification_report(Y_test, predDT)
+report = classification_report(Y_test, pred_DT)
 print(report)
 
 from sklearn.metrics import accuracy_score
-print("Accuracy for Random Forest on CV data: ",accuracy_score(Y_test,predDT))
+print("Accuracy for Random Forest on CV data: ", accuracy_score(Y_test,pred_DT))
 
-F1 = f1_score(Y_test, predDT, average=None)
-print("The F1-measure for class Y=1 is {}".format(F1[1])) ## 0.505
+F1 = f1_score(Y_test, pred_DT, average=None)
+print("The F1-measure for class Y=1 is {}".format(F1[1]))
 
-##################################### Neural Network Classifier ########################################
+##################################### Neural Network Classifier (keras) ########################################
 
 from keras.models import Sequential
 from keras.layers import Dense
@@ -93,46 +89,46 @@ model.fit(X_train, Y_train, epochs=150, batch_size=10)
 _, accuracy = model.evaluate(X_train, Y_train)
 print('Accuracy: %.2f' % (accuracy*100))
 # make class predictions with the model
-predictions = model.predict_classes(X)
+NN_pred = model.predict_classes(X_test)
 
-
-##################################### Random Forest Regressor ########################################
+################################################## Random Forest Regressor #####################################################
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import ShuffleSplit
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
 
-estimator = RandomForestRegressor()
 param_grid = { 
-            "n_estimators"      : [10,20,30],
-#             "max_features"      : ["auto", "sqrt", "log2"],
-#             "min_samples_split" : [2,4,8],
-#             "bootstrap": [True, False],
+            "n_estimators"      : [100, 200, 300], # default=100
+#             "max_features"      : ["auto", "sqrt", "log2"], #default=auto
+#             "min_samples_split" : [2,4,8], #default=2
+#             "bootstrap": [True, False], #default=True
             }
 
-RFR = GridSearchCV(estimator, param_grid, cv=5, scoring="r2")
-RFR.fit(X_train, Y_train)
+
+RFR = RandomForestRegressor()
+RFR_cv = GridSearchCV(RFR, param_grid, cv=5, scoring="r2")
+RFR_cv.fit(X_train, Y_train)
     
 # Feature Importance
 feat_labels = X.columns.values
-importances = RFR.best_estimator_.feature_importances_
+importances = RFR_cv.best_estimator_.feature_importances_
 indices = np.argsort(importances)
 
 plt.title('RF Feature Importance')
 plt.barh(range(len(indices)), importances[indices], color='b', align='center')
 plt.yticks(range(len(indices)), [feat_labels[i] for i in indices])
 plt.xlabel('Relative Importance')
-plt.savefig("RFFeatureImportance", bbox_inches="tight")
+# plt.savefig("RFFeatureImportance", bbox_inches="tight")
 
-print(RFR.best_score_ , RFR.best_params_)
+print(RFR_cv.best_score_ , RFR_cv.best_params_)
 
-predRFR = RFR.predict(X_test)
-r2_score(predRFR, Y_test)
-print("The r2 on test data set is {}.".format(r2_score(predRFR,Y_test)))
+pred_RFR = RFR_cv.predict(X_test)
+r2_score(pred_RFR, Y_test)
+print("The r2 on test data set is {}.".format(r2_score(pred_RFR,Y_test)))
 
 ##################################### Neural Network - Regression ########################################
-https://www.tensorflow.org/tutorials/keras/regression
+# https://www.tensorflow.org/tutorials/keras/regression
 
 from keras.models import Sequential
 from keras.layers import Dense
@@ -146,4 +142,4 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='mse', optimizer='adam')
 # fit the keras model on the dataset
 model.fit(X, y, epochs=10, batch_size=10)
-Pred_y = model.predict(X)
+pred_NNR = model.predict(X_test)
