@@ -1,4 +1,5 @@
 ### TO ADD: Mean encoding, value encoding methods
+# Change k-means plotting of silhouette score and k into function form
 
 ######################### Working directory #########################
 import os
