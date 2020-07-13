@@ -118,7 +118,7 @@ df.replace(cleanup_nums, inplace=True)
 # Remapping respective cell in c2 to 10, based on condition c1 == Value
 df.loc[df['c1'] == 'Value', 'c2'] = 10
 
-## Function - Discretizing (Or use k-means clustering)
+## Function - Discretizing (using .at)
 def cleancols(column):
     for i in column:
        for index, row in df.iterrows():
@@ -127,13 +127,44 @@ def cleancols(column):
           elif df.at[index, i] == 0:
               df.at[index, i] = 4            
 
-# Function - Discretizing v2 (Or use k-means clustering)
+# Function - Discretizing v2 (using if, elif)
 def disc(num):
     if num <5000000:
         return "Low"
     elif num >= 5000000:
         return "High"
 df["SalaryCat"] = df["Salary"].apply(disc)
+  
+# Function - Discretizing v3 (using equal-width bins)
+from sklearn.preprocessing import KBinsDiscretizer
+discretizer = KBinsDiscretizer(n_bins=10, encode='ordinal', strategy='uniform')
+  
+# Function - Discretizing v4 (using equal-frequency bins)
+from sklearn.preprocessing import KBinsDiscretizer
+discretizer = KBinsDiscretizer(n_bins=10, encode='ordinal', strategy='quantile')
+
+# Function - Discretizing v5 (using k-means)
+from sklearn.preprocessing import KBinsDiscretizer
+col_to_disc = ["col1", "col2"] #List of columns to discretize
+
+# First find out how many bins is best for k-means
+from sklearn.metrics import silhouette_score
+from sklearn.cluster import KMeans
+sse_ = []
+for k in range (2,5):
+  kmeans = KMeans(n_clusters=k).fit(cont_df[col])
+  sse_.append([k, silhouette_score(cont_df[col], kmeans.labels_)])
+plt.plot(pd.DataFrame(sse_)[0], pd.DataFrame(sse_)[1]);
+
+# Discretizing immediately using user-defined n_bins
+def discre_cols(dataframe, col_to_disc, n_bins):
+  discretizer = KBinsDiscretizer(n_bins=n_bins, encode='ordinal', strategy='kmeans')
+  for i in col_to_disc:
+    res_col = np.array(dataframe[i]).reshape((len(dataframe[i]),1))
+    res2_col = discretizer.fit_transform(res_col)
+    dataframe[i+"_disc"] = res2_col
+    dataframe = dataframe.drop([i], axis=1)
+discre_cols(df, col_to_disc, 3)
   
 ## Using iloc to select rows
 df.iloc[0:3] # Returns rows with index values 0, 1, 2
