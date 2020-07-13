@@ -147,16 +147,16 @@ discretizer = KBinsDiscretizer(n_bins=10, encode='ordinal', strategy='quantile')
 from sklearn.preprocessing import KBinsDiscretizer
 col_to_disc = ["col1", "col2"] #List of columns to discretize
 
-# First find out how many bins is best for k-means
+# v5: First find out how many bins is best for k-means
 from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans
 sse_ = []
-for k in range (2,5):
+for k in range (2,9):
   kmeans = KMeans(n_clusters=k).fit(cont_df[col])
   sse_.append([k, silhouette_score(cont_df[col], kmeans.labels_)])
 plt.plot(pd.DataFrame(sse_)[0], pd.DataFrame(sse_)[1]);
 
-# Discretizing immediately using user-defined n_bins
+# v5: Discretizing immediately using user-defined n_bins
 def discre_cols(dataframe, col_to_disc, n_bins):
   discretizer = KBinsDiscretizer(n_bins=n_bins, encode='ordinal', strategy='kmeans')
   for i in col_to_disc:
