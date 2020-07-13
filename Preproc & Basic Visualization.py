@@ -152,7 +152,7 @@ col_to_disc = ["col1", "col2"] #List of columns to discretize
 from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans
 sse_ = []
-for k in range (2,9):
+for k in range (2,7):
   kmeans = KMeans(n_clusters=k).fit(cont_df[col])
   sse_.append([k, silhouette_score(cont_df[col], kmeans.labels_)])
 plt.plot(pd.DataFrame(sse_)[0], pd.DataFrame(sse_)[1]);
