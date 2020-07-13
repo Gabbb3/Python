@@ -1,4 +1,3 @@
-# k-means to do discretization
 # New file: Oversampling methods SMOTE, ADASYN
 # Other file: PDPBox, P&C and left_join back
 ######################### Splitting dataframe for modelling #########################
