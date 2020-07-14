@@ -1,7 +1,7 @@
 # This repository contains useful projects done by myself and information relating to Python.
 
 ### Projects
-This section contains projects which I have done (both alone and in a team)
+This section contains projects which I have done (both alone and in a team).
 - NLP
    - Topic modelling
    - Sentiment Analysis
@@ -16,7 +16,8 @@ This section contains projects which I have done (both alone and in a team)
 
 ### Basic Machine Learning
 This section contains commonly used basic machine learning techniques.
-Where applicable, cross-validation and feature importance is included
+
+Where applicable, cross-validation and feature importance is included.
 1. Classification
    - Random Forest
    - Decision Tree
@@ -50,7 +51,7 @@ Where applicable, cross-validation and feature importance is included
       - To be updated
     
 ### Oversampling techniques
-This section contains commonly used oversample/undersample techniques
+This section contains commonly used oversample/undersample techniques.
 1. Classification
    - SMOTE
    - ADASYN
@@ -58,7 +59,7 @@ This section contains commonly used oversample/undersample techniques
    - SMOTER
 
 ### Preproc & Basic Visualization
-This contains commonly used pre-processing techniques including but limited to:
+This section contains commonly used pre-processing techniques including but limited to:
 1. Describing datasets
    - value_counts
    - missing values
