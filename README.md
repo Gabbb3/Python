@@ -1,10 +1,68 @@
-# This repository contains useful information relating to Python.
+# This repository contains useful projects done by myself and information relating to Python.
+
+### Projects
+This section contains projects which I have done (both alone and in a team)
+- NLP
+   - Topic modelling
+   - Sentiment Analysis
+- Context-aware recommendation systems (CARS)
+- Driver Analysis
+   - Term deposit marketing campaign
+   -
+- SQL 
+   - Create and end-to-end use of SQL-Tableau as a manufacturing firm
+- LSTM (masked)
+- R Shiny, flexdashboard
+
+### Basic Machine Learning
+This section contains commonly used basic machine learning techniques.
+Where applicable, cross-validation and feature importance is included
+1. Classification
+   - Random Forest
+   - Decision Tree
+   - Naive Bayes
+   - ADABoost
+   - Logistic Regression
+      - sklearn
+      - statsmodel
+      - (includes ROC and AUC scores)
+   - SVC (Polynomial, RBF, Sigmoid, Linear)
+   - Gradient Boosting
+   - XGBoost
+   - Neural Network
+   - Voting
+   - LSTM
+   - Evaluations
+      - Confusion matrix
+      - Classification report
+      - Accuracy (cv training sets)
+      - Accuracy (manual)
+      - Accuracy (sklearn)
+      - F1
+2. Regression
+   - Random Forest
+   - Lasso Regression (L1)
+   - Ridge Regression (L2)
+   - Neural Network (keras)
+   - LSTM
+   - Evaluations
+      - MSE
+      - To be updated
+    
+### Oversampling techniques
+This section contains commonly used oversample/undersample techniques
+1. Classification
+   - SMOTE
+   - ADASYN
+2. Regression
+   - SMOTER
 
 ### Preproc & Basic Visualization
 This contains commonly used pre-processing techniques including but limited to:
 1. Describing datasets
    - value_counts
    - missing values
+   - PDPBox
 2. Manipulation
    - datetime values
    - data types
@@ -43,39 +101,6 @@ This contains commonly used pre-processing techniques including but limited to:
    - extract first # digits
    - duplicates
   
-### Basic Machine Learning
-This contains commonly used basic machine learning techniques.
-Where applicable, cross-validation and feature importance is included
-1. Classification
-   - Random Forest
-   - Decision Tree
-   - Naive Bayes
-   - ADABoost
-   - Logistic Regression
-      - sklearn
-      - statsmodel
-      - (includes ROC and AUC scores)
-   - SVC (Polynomial, RBF, Sigmoid, Linear)
-   - Gradient Boosting
-   - XGBoost
-   - Neural Network
-   - Voting
-   - LSTM
-   - Evaluations
-      - Confusion matrix
-      - Classification report
-      - Accuracy (cv training sets)
-      - Accuracy (manual)
-      - Accuracy (sklearn)
-      - F1
-2. Regression
-   - Random Forest
-   - Lasso Regression (L1)
-   - Ridge Regression (L2)
-   - Neural Network (keras)
-   - LSTM
-   - Evaluations
-      - MSE
-      - To be updated
+
    
 
