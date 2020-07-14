@@ -1,5 +1,3 @@
-# New file: Oversampling methods SMOTE, ADASYN
-# Other file: PDPBox, P&C and left_join back
 ######################### Splitting dataframe for modelling #########################
 Y = df["y"]
 X = df.drop(["y"], axis=1)
