@@ -1,7 +1,6 @@
 # This repository contains useful information relating to Python.
 
 ### Preproc & Basic Visualization
-
 This contains commonly used pre-processing techniques including but limited to:
 1. Describing datasets
    - value_counts
@@ -27,22 +26,56 @@ This contains commonly used pre-processing techniques including but limited to:
      - Onehot
      - mean/target
 3. Plotting
-  - all categorical
-  - all numerical
-    - distplot
-    - binned
+   - all categorical
+   - all numerical
+     - distplot
+     - binned
 4. train test split
 5. scaling
-  - StandardScalar
-  - MinMaxScaler
+   - StandardScalar
+   - MinMaxScaler
 6. Other
-  - pivot tables / crosstabs
-  - binning
-  - importing list of tiles
-  - startswith, endswith, contains
-  - np.where (adding new column based on conditions)
-  - extract first # digits
-  - duplicates
+   - pivot tables / crosstabs
+   - binning
+   - importing list of tiles
+   - startswith, endswith, contains
+   - np.where (adding new column based on conditions)
+   - extract first # digits
+   - duplicates
   
-  
+### Basic Machine Learning
+This contains commonly used basic machine learning techniques.
+Where applicable, cross-validation and feature importance is included
+1. Classification
+   - Random Forest
+   - Decision Tree
+   - Naive Bayes
+   - ADABoost
+   - Logistic Regression
+      - sklearn
+      - statsmodel
+      - (includes ROC and AUC scores)
+   - SVC (Polynomial, RBF, Sigmoid, Linear)
+   - Gradient Boosting
+   - XGBoost
+   - Neural Network
+   - Voting
+   - LSTM
+   - Evaluations
+      - Confusion matrix
+      - Classification report
+      - Accuracy (cv training sets)
+      - Accuracy (manual)
+      - Accuracy (sklearn)
+      - F1
+2. Regression
+   - Random Forest
+   - Lasso Regression (L1)
+   - Ridge Regression (L2)
+   - Neural Network (keras)
+   - LSTM
+   - Evaluations
+      - MSE
+      - To be updated
+   
 
