@@ -1,6 +1,3 @@
-### TO ADD: Mean encoding, value encoding methods
-# Change k-means plotting of silhouette score and k into function form
-
 ######################### Working directory #########################
 import os
 os.getcwd()
@@ -149,17 +146,30 @@ from sklearn.preprocessing import KBinsDiscretizer
 col_to_disc = ["col1", "col2"] #List of columns to discretize
 
 # v5: First find out how many bins is best for k-means
+  # Using Silhouette score (-1 to 1, where 1 means point is very similar to other points in cluster (better)
 from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans
-sse_ = []
-for k in range (2,7):
-  kmeans = KMeans(n_clusters=k).fit(cont_df[col])
-  sse_.append([k, silhouette_score(cont_df[col], kmeans.labels_)])
-plt.plot(pd.DataFrame(sse_)[0], pd.DataFrame(sse_)[1]);
+  
+def silh_plot(dataframe, col, start_k, end_k): # silh_plot(df, "balance", 2, 5) - Takes a lot longer to run than ssd
+    res = pd.DataFrame(columns = ["k", "silhouette_score"])
+    for k in range (start_k, end_k):
+      kmeans = KMeans(n_clusters=k).fit(np.array(dataframe[col]).reshape((len(dataframe[col]),1)))
+      res = res.append({"k": k, "silhouette_score": silhouette_score(np.array(dataframe[col]).reshape((len(dataframe[col]),1)), kmeans.labels_)}, ignore_index=True)
+    sns.lineplot(x="k", y="silhouette_score", data=res)
+  
+  # Using sum of squared distance (ssd)
+import seaborn as sns
+def ssd_plot(dataframe, col, start_k, end_k): # ssd_plot(df, "balance", 2, 7)
+    res = pd.DataFrame(columns = ["k", "ssd"])
+    for k in list(range(start_k, end_k)):
+        model_clus = KMeans(n_clusters = k, max_iter=100)
+        model_clus.fit(np.array(dataframe[col]).reshape((len(dataframe[col]),1)))
+        res = res.append({"k": k, "ssd": model_clus.inertia_}, ignore_index=True)
+    sns.lineplot(x="k", y="ssd", data=res)
 
-# v5: Discretizing immediately using user-defined n_bins
-def discre_cols(dataframe, col_to_disc, n_bins):
-  discretizer = KBinsDiscretizer(n_bins=n_bins, encode='ordinal', strategy='kmeans')
+# v5: Discretizing immediately using user-defined k
+def discre_cols(dataframe, col_to_disc, k):
+  discretizer = KBinsDiscretizer(n_bins=k, encode='ordinal', strategy='kmeans')
   for i in col_to_disc:
     res_col = np.array(dataframe[i]).reshape((len(dataframe[i]),1))
     res2_col = discretizer.fit_transform(res_col)
@@ -297,6 +307,27 @@ category_col = ["A", "B", "C"]
 for i in category_col:
     df = df.join(pd.get_dummies(raw[i], prefix=i))
     df = df.drop([i], axis=1)
+  
+## Mean/ Target Encoding - Can further regularize k-fold for target/mean encoding if needed ##
+# https://medium.com/@pouryaayria/k-fold-target-encoding-dfe9a594874b
+def mean_encoding(dataframe, col, target):
+    encod_type = dataframe.groupby(col)[target].mean()
+    dataframe[col + '_mean_enc'] = dataframe[col].map(encod_type)
+    # dataframe = dataframe.drop([col], axis=1) # To delete pre-encoded col
+    return dataframe
+# mean_encoding(df, "job", "age")
+  
+## Mean / Target Encoding - Melting - Similar to OHE, but using another column's value as that encoded value (Instead of 0 | 0 | 1, you get 0 | 0 | 394, in the new encoded columns)
+#https://towardsdatascience.com/learn-advanced-features-for-pythons-main-data-analysis-library-in-20-minutes-d0eedd90d086
+melt_experiment = pd.merge(
+    invoices,
+    pd.get_dummies(invoices['Type of Meal']).mul(invoices['Meal Price'].values,axis=0),
+    left_index=True,
+    right_index=True
+)
+del melt_experiment['Type of Meal']
+del melt_experiment['Meal Price']
+melt_experiment
 
 ######################### PLOTTING #########################
 # Function: Plotting Categorical Variables
@@ -495,18 +526,6 @@ pd.concat((pd.read_csv(file).assign(filename=file) for file in stock_files), ign
 #https://towardsdatascience.com/learn-advanced-features-for-pythons-main-data-analysis-library-in-20-minutes-d0eedd90d086
 df[col].str.endswith('ast')
 df[df[col].str.contains("Bruce")]
-
-## Mean Encoding - Melting - Similar to OHE, but using another column's value as that encoded value (Instead of 0 | 0 | 1, you get 0 | 0 | 394, in the new encoded columns)
-#https://towardsdatascience.com/learn-advanced-features-for-pythons-main-data-analysis-library-in-20-minutes-d0eedd90d086
-melt_experiment = pd.merge(
-    invoices,
-    pd.get_dummies(invoices['Type of Meal']).mul(invoices['Meal Price'].values,axis=0),
-    left_index=True,
-    right_index=True
-)
-del melt_experiment['Type of Meal']
-del melt_experiment['Meal Price']
-melt_experiment
 
 ## Numpy operators/ If
 np.logical_or(1 ==1, 2 ==1) # and or not xor
