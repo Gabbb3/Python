@@ -565,3 +565,25 @@ Actual_Y_test = scaler.inverse_transform([Y_test])
 # Mean squared error
 LS_mse = metrics.mean_squared_error(Y_test, pred_LS)
 LS_mse
+
+
+################################################# Other Analysis using trained models ####################################################
+# Using PDP - isolate and info_plots
+# isolate plots
+feature_cols = ["A", "B", "C"]
+for i in feature_cols:
+    # Create the data that we will plot
+    pdp_data = pdp.pdp_isolate(model=rfr_best, dataset=X, model_features=X.columns.values, feature=i)
+    pdp.pdp_plot(pdp_data, i)
+    plt.show()
+
+
+# infoplots
+for i in feature_cols:
+    fig, axes, summary_df = info_plots.actual_plot(
+        model=smote_RFCV, X=X_smote, feature=i, feature_name=i, predict_kwds={}
+    )
+
+
+
+
