@@ -41,6 +41,44 @@ def countUV(x, df):
     print("\n")  
 countUV(df.columns.values, df)
                  
+## PDPBox
+# https://github.com/SauceCat/PDPbox
+from pdpbox import pdp, info_plots
+
+# Encoding categorical
+categorical_cols = ["A", "B", "C"]
+for i in categorical_col:
+    df = df.join(pd.get_dummies(raw[i], prefix=i))
+    df = df.drop([i], axis=1)
+
+# Plotting PDP boxes for ohe hot encoded data 
+def plot_pdp_cat(df, features, target):
+  for col in features:
+      fig, axes, summary_df = info_plots.target_plot(
+          df=df, 
+          feature=[sub_col for sub_col in df.columns if sub_col.startswith(col)], 
+          feature_name=col, target=target)
+      _ = axes['bar_ax'].set_xticklabels([sub_col.replace(col+'_','') for sub_col in df.columns if sub_col.startswith(col)], 
+                                         rotation=45,
+                                         fontsize=12,
+                                         horizontalalignment='right')
+plot_pdp_cat(df, categorical_cols, "y")
+
+# Plotting PDP boxes for continuous data
+continuous_cols = ["D", "E", "F"]
+def plot_pdp_cont(df, features, target):
+  for i in features:
+      fig, axes, summary_df = info_plots.target_plot(
+              df=df, 
+              feature=i, 
+              feature_name=i, 
+              target=target,
+              grid_type="percentile",
+              show_percentile=True
+              ,num_grid_points=21
+      )
+plot_pdp_cont(df, continuous_cols, "y")
+
 ######################### Manipulation #########################
 
 ## Datetime values ##
@@ -539,4 +577,3 @@ extr = df['Date of Publication'].str.extract(r'^(\d{4})', expand=False)
 df[df.duplicated(subset = 'patient_id', keep =False)] # Find all with duplicated "patient_id" and show
 repeat_patients = df.groupby(by = 'patient_id').size().sort_values(ascending =False) # Show number of repeats
 df[df.duplicated(subset = 'Salary', keep =False)]["Name"].value_counts() # Prints name of those who have duplicated Salary numbers
-                          
