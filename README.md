@@ -7,12 +7,14 @@ This section contains projects which I have done (both alone and in a team).
    - Sentiment Analysis
 - Context-aware recommendation systems (CARS)
 - Driver Analysis
-   - Term deposit marketing campaign
-   -
+   - Term deposit marketing campaign (R) [Data Mining]
+   - Bike Sharing (R) [AS1]
 - SQL 
-   - Create and end-to-end use of SQL-Tableau as a manufacturing firm
-- LSTM (masked)
-- R Shiny, flexdashboard
+   - Create and end-to-end use of SQL-Tableau as a manufacturing firm (SQL + Tableau)
+- LSTM (masked) - (py)
+- R Shiny, flexdashboard (R)
+   - From data storage, automatic preprocess into usesable form for basic model training, feature importance and visualization
+- Basic derivatives pricing (py) [FRA1]
 
 ### Basic Machine Learning
 This section contains commonly used basic machine learning techniques.
@@ -89,11 +91,11 @@ This section contains commonly used pre-processing techniques including but limi
    - all numerical
      - distplot
      - binned
-4. train test split
-5. scaling
+4. Train test split
+5. Scaling
    - StandardScalar
    - MinMaxScaler
-6. Other
+6. Others
    - pivot tables / crosstabs
    - binning
    - importing list of tiles
