@@ -498,7 +498,7 @@ model.compile(loss='mse', optimizer='adam')
 model.fit(X, y, epochs=10, batch_size=10)
 pred_NNR = model.predict(X_test)
 
-##################################### LSTM - Classification ########################################
+##################################### LSTM - Regressor ########################################
 # Most predictions like Revenue etc. use timestep=1
 
 from keras.preprocessing.text import one_hot
