@@ -293,6 +293,50 @@ xg_importance["importances"] = importances
 xg_importance = xg_importance.sort_values(["importances"], ascending=0)
 xg_importance
 
+
+##################################### XGBoost vs. Light GBM ########################################
+
+https://www.analyticsvidhya.com/blog/2017/06/which-algorithm-takes-the-crown-light-gbm-vs-xgboost/
+            
+train_data=lgb.Dataset(x_train,label=y_train)
+#setting parameters for lightgbm
+param = {'num_leaves':150, 'objective':'binary','max_depth':7,'learning_rate':.05,'max_bin':200}
+param['metric'] = ['auc', 'binary_logloss']
+#Here we have set max_depth in xgb and LightGBM to 7 to have a fair comparison between the two.
+#training our model using light gbm
+num_round=50
+start=datetime.now()
+lgbm=lgb.train(param,train_data,num_round)
+stop=datetime.now()
+#Execution time of the model
+execution_time_lgbm = stop-start
+execution_time_lgbm
+#predicting on test set
+ypred2=lgbm.predict(x_test)
+ypred2[0:5]  # showing first 5 predictions
+#converting probabilities into 0 or 1
+for i in range(0,9769):
+    if ypred2[i]>=.5:       # setting threshold to .5
+       ypred2[i]=1
+    else:  
+       ypred2[i]=0
+#calculating accuracy
+accuracy_lgbm = accuracy_score(ypred2,y_test)
+accuracy_lgbm
+y_test.value_counts()
+from sklearn.metrics import roc_auc_score
+#calculating roc_auc_score for xgboost
+auc_xgb =  roc_auc_score(y_test,ypred)
+auc_xgb
+#calculating roc_auc_score for light gbm. 
+auc_lgbm = roc_auc_score(y_test,ypred2)
+auc_lgbm comparison_dict = {'accuracy score':(accuracy_lgbm,accuracy_xgb),'auc score':(auc_lgbm,auc_xgb),'execution time':(execution_time_lgbm,execution_time_xgb)}
+#Creating a dataframe ‘comparison_df’ for comparing the performance of Lightgbm and xgb. 
+comparison_df = DataFrame(comparison_dict) 
+comparison_df.index= ['LightGBM','xgboost'] 
+comparison_df
+
+
 ##################################### Neural Network Classifier (keras) ########################################
 
 from keras.models import Sequential
